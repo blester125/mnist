@@ -6,7 +6,6 @@ import sys
 import logging
 import argparse
 from hashlib import sha1
-from builtins import str
 from gzip import GzipFile
 from struct import unpack_from
 import numpy as np
