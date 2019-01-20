@@ -1,6 +1,6 @@
 # mnist
 
-[![Build Status](https://travis-ci.com/blester125/get-mnist.svg?branch=master)](https://travis-ci.com/blester125/get-mnist)
+[![Build Status](https://travis-ci.com/blester125/mnist.svg?branch=master)](https://travis-ci.com/blester125/mnist)
 
 Download MNIST and Fashion MNIST datasets without needing to install tensorflow.
 
