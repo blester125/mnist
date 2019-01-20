@@ -50,7 +50,7 @@ setup(
     setup_requires=[
     ],
     extras_require={
-        'test': ['pytest'],
+        'test': ['pytest', 'mock'],
     },
     keywords=[],
     ext_modules=ext_modules,
