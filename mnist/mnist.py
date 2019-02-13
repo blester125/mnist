@@ -140,6 +140,7 @@ def fetch_data(parse, url, cache):
             logging.critical("Magic Number mismatch for {}".format(url))
         finally:
             clear_cache(cache, url)
+    return data
 
 
 def get_mnist(
