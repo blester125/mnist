@@ -35,7 +35,7 @@ class MNIST:
 
 class FashionMNIST:
     URL=u"http://fashion-mnist.s3-website.eu-central-1.amazonaws.com"
-    TRAIN=u"{}/train-images-idx2-ubyte.gz".format(URL)
+    TRAIN=u"{}/train-images-idx3-ubyte.gz".format(URL)
     TRAIN_LABELS=u"{}/train-labels-idx1-ubyte.gz".format(URL)
     TEST=u"{}/t10k-images-idx3-ubyte.gz".format(URL)
     TEST_LABELS=u"{}/t10k-labels-idx1-ubyte.gz".format(URL)
@@ -56,6 +56,20 @@ def read_images(data):
     images = np.frombuffer(data[16:], dtype=np.uint8).astype(np.float32)
     images = np.reshape(images, (number, rows, cols))
     return images
+
+
+def get_cache(cache, name='MNIST'):
+    """If they don't provide a cache directory use $XDG_DATA_DIR and back off to $HOME/.local/share.
+
+    :param cache: `str` a user provided cache
+    :param name: `str` a postfix name to the default cache
+
+    :returns: `str` the cache location.
+    """
+    if cache is not None:
+        return cache
+    return os.getenv('XDG_DATA_DIR', os.path.join(os.getenv('HOME'), '.local', 'share', name))
+
 
 
 def get_cache_path(url, cache):
@@ -151,6 +165,8 @@ def get_mnist(
         test_label_url=MNIST.TEST_LABELS,
 ):
     """Download the original MNIST data."""
+    cache = get_cache(cache, 'MNIST')
+    logging.info("Caching data at %s", cache)
     x_train = fetch_data(read_images, train_url, cache)
     x_test = fetch_data(read_images, test_url, cache)
     y_train = fetch_data(read_labels, train_label_url, cache)
@@ -166,6 +182,7 @@ def get_fashion_mnist(
         test_label_url=FashionMNIST.TEST_LABELS,
 ):
     """Download the drop-in replacement `FashionMNIST` data."""
+    cache = get_cache(cache, 'FASHION_MNIST')
     return get_mnist(
         cache,
         train_url, train_label_url,
@@ -180,10 +197,7 @@ def main():
         choices=["mnist", "fashion"],
         help="Which dataset to download."
     )
-    parser.add_argument(
-        "--cache", default="MNIST",
-        help="Directory to save data in"
-    )
+    parser.add_argument("--cache", help="Directory to save data in")
     args = parser.parse_args()
 
     if args.data.lower() == "mnist":
