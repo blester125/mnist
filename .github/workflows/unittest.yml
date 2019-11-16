@@ -33,4 +33,5 @@ jobs:
         pip install .[test]
     - name: Unit Test
       run: |
+        python tests/generate_data.py
         pytest
