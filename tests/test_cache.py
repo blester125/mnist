@@ -7,7 +7,7 @@ import hashlib
 import pytest
 from mock import patch
 import numpy as np
-from mnist.mnist import get_cache_path, check_cache, clear_cache
+from mnist.mnist import get_cache_path, check_cache, clear_cache, get_cache, XDG_DATA_DIR
 
 
 def rstr(l=None, mi=5, ma=21):
@@ -15,6 +15,45 @@ def rstr(l=None, mi=5, ma=21):
         l = np.random.randint(mi, ma)
     choices = list(string.ascii_letters + string.digits)
     return ''.join([np.random.choice(choices) for _ in range(l)])
+
+
+@pytest.fixture
+def xdg_data_home():
+    loc = rstr()
+    os.environ[XDG_DATA_DIR] = loc
+    yield loc
+    del os.environ[XDG_DATA_DIR]
+
+
+def test_get_cache():
+    gold = rstr()
+    cache = get_cache(gold)
+    assert cache == gold
+
+
+def test_get_cache_xdg_data_set(xdg_data_home):
+    gold = xdg_data_home
+    cache = get_cache(None)
+    assert cache == gold
+
+
+def test_get_cache_xdg_default():
+    with patch('mnist.mnist.os.path.expanduser') as home_patch:
+        home = rstr()
+        home_patch.return_value = home
+        gold = os.path.join(home, '.local', 'share', 'MNIST')
+        cache = get_cache(None)
+    assert cache == gold
+
+
+def test_get_cache_xdg_default_override_name():
+    with patch('mnist.mnist.os.path.expanduser') as home_patch:
+        home = rstr()
+        home_patch.return_value = home
+        name = rstr()
+        gold = os.path.join(home, '.local', 'share', name)
+        cache = get_cache(None, name=name)
+    assert cache == gold
 
 
 def test_get_cache_path():

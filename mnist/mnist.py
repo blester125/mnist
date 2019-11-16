@@ -13,6 +13,9 @@ import numpy as np
 
 LABEL_MAGIC = 2049
 IMAGE_MAGIC = 2051
+XDG_DATA_DIR = 'XDG_DATA_DIR'
+LOCAL = '.local'
+SHARE = 'share'
 
 
 def get_log_level(ll):
@@ -68,7 +71,7 @@ def get_cache(cache, name='MNIST'):
     """
     if cache is not None:
         return cache
-    return os.getenv('XDG_DATA_DIR', os.path.join(os.getenv('HOME'), '.local', 'share', name))
+    return os.getenv(XDG_DATA_DIR, os.path.join(os.path.expanduser('~'), LOCAL, SHARE, name))
 
 
 
