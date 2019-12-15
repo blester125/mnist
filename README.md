@@ -1,11 +1,30 @@
 # mnist
 
-[![Actions Status](https://github.com/blester125/mnist/workflows/Unit%20Test/badge.svg)](https://github.com/blester125/mnist/actions)
+[![PyPi Version](https://img.shields.io/pypi/v/get-mnist)](https://pypi.org/project/get-mnist/) [![Actions Status](https://github.com/blester125/mnist/workflows/Unit%20Test/badge.svg)](https://github.com/blester125/mnist/actions) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Download MNIST and Fashion MNIST datasets without needing to install tensorflow.
 
-Install with `pip install get-mnist`
+# Installation
 
-Download data with `from mnist import get_mnist; x, y, x_test, y_test = get_mnist('MNIST')` or use `get_fashion_mnist`. Data is downloaded and cached (in this case into the folder called `'MNIST'`).
+```
+pip install get-mnist
+```
 
-If you don't set a cache directory it will default to `$XDG_DATA_HOME/MNIST`
+# CLI Download
+
+```
+mnist --dataset [mnist, fashion] --cache [CACHE]
+```
+
+Use the `--dataset` flag to decide if you want to download the original MNIST dataset or the Fashion MNIST dataset. Use the `--cache` flag to decide where to save the dataset. If omitted it defaults to `$XDG_DATA_HOME/MNIST` or `$XDG_DATA_HOME/FASHION_MNIST`.
+
+# Programatic Download
+
+
+```python
+from mnist import get_mnist
+x, y, x_test, y_test = mnist('MNIST')
+x, y, x_test, y_test = fashion_mnist('FASHION_MNIST')
+```
+
+The function argument is the name of the directory to cache the dataset in. These functions can also take `train_url`, `train_label_url`, `test_url`, and `test_label_url` to download data from different sources.

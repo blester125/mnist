@@ -13,35 +13,32 @@ import numpy as np
 
 LABEL_MAGIC = 2049
 IMAGE_MAGIC = 2051
-XDG_DATA_DIR = 'XDG_DATA_DIR'
-LOCAL = '.local'
-SHARE = 'share'
+XDG_DATA_DIR = "XDG_DATA_DIR"
+LOCAL = ".local"
+SHARE = "share"
 
 
 def get_log_level(ll):
     return getattr(logging, ll.upper(), logging.ERROR)
 
 
-logging.basicConfig(
-    format="[MNIST] %(message)s",
-    level=get_log_level(os.getenv('MNIST_LOG_LEVEL', 'INFO'))
-)
+logging.basicConfig(format="[MNIST] %(message)s", level=get_log_level(os.getenv("MNIST_LOG_LEVEL", "INFO")))
 
 
 class MNIST:
-    URL=u"http://yann.lecun.com/exdb/mnist"
-    TRAIN=u"{}/train-images-idx3-ubyte.gz".format(URL)
-    TRAIN_LABELS=u"{}/train-labels-idx1-ubyte.gz".format(URL)
-    TEST=u"{}/t10k-images-idx3-ubyte.gz".format(URL)
-    TEST_LABELS=u"{}/t10k-labels-idx1-ubyte.gz".format(URL)
+    URL = "http://yann.lecun.com/exdb/mnist"
+    TRAIN = "{}/train-images-idx3-ubyte.gz".format(URL)
+    TRAIN_LABELS = "{}/train-labels-idx1-ubyte.gz".format(URL)
+    TEST = "{}/t10k-images-idx3-ubyte.gz".format(URL)
+    TEST_LABELS = "{}/t10k-labels-idx1-ubyte.gz".format(URL)
 
 
 class FashionMNIST:
-    URL=u"http://fashion-mnist.s3-website.eu-central-1.amazonaws.com"
-    TRAIN=u"{}/train-images-idx3-ubyte.gz".format(URL)
-    TRAIN_LABELS=u"{}/train-labels-idx1-ubyte.gz".format(URL)
-    TEST=u"{}/t10k-images-idx3-ubyte.gz".format(URL)
-    TEST_LABELS=u"{}/t10k-labels-idx1-ubyte.gz".format(URL)
+    URL = "http://fashion-mnist.s3-website.eu-central-1.amazonaws.com"
+    TRAIN = "{}/train-images-idx3-ubyte.gz".format(URL)
+    TRAIN_LABELS = "{}/train-labels-idx1-ubyte.gz".format(URL)
+    TEST = "{}/t10k-images-idx3-ubyte.gz".format(URL)
+    TEST_LABELS = "{}/t10k-labels-idx1-ubyte.gz".format(URL)
 
 
 def read_labels(data):
@@ -61,7 +58,7 @@ def read_images(data):
     return images
 
 
-def get_cache(cache, name='MNIST'):
+def get_cache(cache, name="MNIST"):
     """If they don't provide a cache directory use $XDG_DATA_DIR and back off to $HOME/.local/share.
 
     :param cache: `str` a user provided cache
@@ -71,8 +68,7 @@ def get_cache(cache, name='MNIST'):
     """
     if cache is not None:
         return cache
-    return os.getenv(XDG_DATA_DIR, os.path.join(os.path.expanduser('~'), LOCAL, SHARE, name))
-
+    return os.getenv(XDG_DATA_DIR, os.path.join(os.path.expanduser("~"), LOCAL, SHARE, name))
 
 
 def get_cache_path(url, cache):
@@ -160,15 +156,15 @@ def fetch_data(parse, url, cache):
     return data
 
 
-def get_mnist(
-        cache=None,
-        train_url=MNIST.TRAIN,
-        train_label_url=MNIST.TRAIN_LABELS,
-        test_url=MNIST.TEST,
-        test_label_url=MNIST.TEST_LABELS,
+def mnist(
+    cache=None,
+    train_url=MNIST.TRAIN,
+    train_label_url=MNIST.TRAIN_LABELS,
+    test_url=MNIST.TEST,
+    test_label_url=MNIST.TEST_LABELS,
 ):
     """Download the original MNIST data."""
-    cache = get_cache(cache, 'MNIST')
+    cache = get_cache(cache, "MNIST")
     logging.info("Caching data at %s", cache)
     x_train = fetch_data(read_images, train_url, cache)
     x_test = fetch_data(read_images, test_url, cache)
@@ -177,36 +173,28 @@ def get_mnist(
     return x_train, y_train, x_test, y_test
 
 
-def get_fashion_mnist(
-        cache=None,
-        train_url=FashionMNIST.TRAIN,
-        train_label_url=FashionMNIST.TRAIN_LABELS,
-        test_url=FashionMNIST.TEST,
-        test_label_url=FashionMNIST.TEST_LABELS,
+def fashion_mnist(
+    cache=None,
+    train_url=FashionMNIST.TRAIN,
+    train_label_url=FashionMNIST.TRAIN_LABELS,
+    test_url=FashionMNIST.TEST,
+    test_label_url=FashionMNIST.TEST_LABELS,
 ):
     """Download the drop-in replacement `FashionMNIST` data."""
-    cache = get_cache(cache, 'FASHION_MNIST')
-    return get_mnist(
-        cache,
-        train_url, train_label_url,
-        test_url, test_label_url
-    )
+    cache = get_cache(cache, "FASHION_MNIST")
+    return mnist(cache, train_url, train_label_url, test_url, test_label_url)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Download MNIST dataset")
-    parser.add_argument(
-        "--data", default="mnist",
-        choices=["mnist", "fashion"],
-        help="Which dataset to download."
-    )
+    parser.add_argument("--dataset", default="mnist", choices={"mnist", "fashion"}, help="Which dataset to download.")
     parser.add_argument("--cache", help="Directory to save data in")
     args = parser.parse_args()
 
-    if args.data.lower() == "mnist":
-        get_mnist(args.cache)
+    if args.dataset.lower() == "mnist":
+        mnist(args.cache)
     else:
-        get_fashion_mnist(args.cache)
+        fashion_mnist(args.cache)
 
 
 if __name__ == "__main__":

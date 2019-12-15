@@ -14,7 +14,7 @@ def rstr(l=None, mi=5, ma=21):
     if l is None:
         l = np.random.randint(mi, ma)
     choices = list(string.ascii_letters + string.digits)
-    return ''.join([np.random.choice(choices) for _ in range(l)])
+    return "".join([np.random.choice(choices) for _ in range(l)])
 
 
 @pytest.fixture
@@ -38,20 +38,20 @@ def test_get_cache_xdg_data_set(xdg_data_home):
 
 
 def test_get_cache_xdg_default():
-    with patch('mnist.mnist.os.path.expanduser') as home_patch:
+    with patch("mnist.mnist_module.os.path.expanduser") as home_patch:
         home = rstr()
         home_patch.return_value = home
-        gold = os.path.join(home, '.local', 'share', 'MNIST')
+        gold = os.path.join(home, ".local", "share", "MNIST")
         cache = get_cache(None)
     assert cache == gold
 
 
 def test_get_cache_xdg_default_override_name():
-    with patch('mnist.mnist.os.path.expanduser') as home_patch:
+    with patch("mnist.mnist_module.os.path.expanduser") as home_patch:
         home = rstr()
         home_patch.return_value = home
         name = rstr()
-        gold = os.path.join(home, '.local', 'share', name)
+        gold = os.path.join(home, ".local", "share", name)
         cache = get_cache(None, name=name)
     assert cache == gold
 
@@ -62,8 +62,8 @@ def test_get_cache_path():
     if six.PY2:
         h = hashlib.sha1(url).hexdigest()
     else:
-        h = hashlib.sha1(url.encode('utf-8')).hexdigest()
-    with patch('mnist.mnist.os.path.exists') as e_mock:
+        h = hashlib.sha1(url.encode("utf-8")).hexdigest()
+    with patch("mnist.mnist_module.os.path.exists") as e_mock:
         e_mock.return_value = True
         path = get_cache_path(url, cache)
     gold = os.path.join(cache, h)
@@ -72,9 +72,9 @@ def test_get_cache_path():
 
 def test_get_cache_path_creates():
     cache = rstr()
-    with patch('mnist.mnist.os.path.exists') as e_mock:
+    with patch("mnist.mnist_module.os.path.exists") as e_mock:
         e_mock.return_value = False
-        with patch('mnist.mnist.os.makedirs') as m_mock:
+        with patch("mnist.mnist_module.os.makedirs") as m_mock:
             get_cache_path("url", cache)
         m_mock.assert_called_once_with(cache)
 
@@ -94,18 +94,18 @@ def test_check_cache_none():
 
 def test_clear_cache():
     path = rstr()
-    with patch('mnist.mnist.get_cache_path') as p_mock:
+    with patch("mnist.mnist_module.get_cache_path") as p_mock:
         p_mock.return_value = path
-        with patch('mnist.mnist.os.path.exists') as e_mock:
+        with patch("mnist.mnist_module.os.path.exists") as e_mock:
             e_mock.return_value = True
-            with patch('mnist.mnist.os.remove') as r_mock:
+            with patch("mnist.mnist_module.os.remove") as r_mock:
                 clear_cache(None, None)
             r_mock.assert_called_once_with(path)
 
 
 def test_clear_cache_none():
-    with patch('mnist.mnist.get_cache_path') as p_mock:
+    with patch("mnist.mnist_module.get_cache_path") as p_mock:
         p_mock.return_value = None
-        with patch('mnist.mnist.os.remove') as r_mock:
+        with patch("mnist.mnist_module.os.remove") as r_mock:
             clear_cache(None, None)
             r_mock.assert_not_called

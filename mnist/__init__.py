@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 
-__version__ = '0.2.1'
+__version__ = "0.2.1"
 
-from mnist.mnist import get_mnist
-from mnist.mnist import get_fashion_mnist
+# This lets us reference the mnist module (containing helper functions) even after we
+# import the mnist function of the same name. This is used for mocking during tests
+import mnist.mnist as mnist_module
+from mnist.mnist import mnist, fashion_mnist
