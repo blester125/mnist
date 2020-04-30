@@ -19,6 +19,12 @@ SHARE = "share"
 
 
 def get_log_level(ll):
+    """Get the logging level from the logging module. Defaults to ERROR if not found.
+
+    :param ll: `str` The log level wanted.
+
+    :returns: `int` The logging level.
+    """
     return getattr(logging, ll.upper(), logging.ERROR)
 
 
@@ -42,7 +48,12 @@ class FashionMNIST:
 
 
 def read_labels(data):
-    """Read label data format explained here http://yann.lecun.com/exdb/mnist/"""
+    """Read label data format explained here http://yann.lecun.com/exdb/mnist/
+
+    :param data: `bytes` The raw data.
+
+    :returns: `np.ndarray` The labels [B]
+    """
     magic, examples = unpack_from(">2i", data)
     assert magic == LABEL_MAGIC
     labels = unpack_from(">{}B".format(examples), data[8:])
@@ -50,7 +61,12 @@ def read_labels(data):
 
 
 def read_images(data):
-    """Read image data format explained here http://yann.lecun.com/exdb/mnist/"""
+    """Read image data format explained here http://yann.lecun.com/exdb/mnist/
+
+    :param data: `bytes` The raw data.
+
+    :returns: `np.ndarray` The images [B, H, W]
+    """
     magic, number, rows, cols = unpack_from(">4i", data)
     assert magic == IMAGE_MAGIC
     images = np.frombuffer(data[16:], dtype=np.uint8).astype(np.float32)
@@ -68,7 +84,10 @@ def get_cache(cache, name="MNIST"):
     """
     if cache is not None:
         return cache
-    return os.getenv(XDG_DATA_DIR, os.path.join(os.path.expanduser("~"), LOCAL, SHARE, name))
+    cache_dir = os.getenv(XDG_DATA_DIR, os.path.join(os.path.expanduser("~"), LOCAL, SHARE))
+    if name is not None:
+        cache_dir = os.path.join(cache_dir, name)
+    return cache_dir
 
 
 def get_cache_path(url, cache):
@@ -163,7 +182,20 @@ def mnist(
     test_url=MNIST.TEST,
     test_label_url=MNIST.TEST_LABELS,
 ):
-    """Download the original MNIST data."""
+    """Download the original MNIST data.
+
+    :param cache: `Optional[str]` The location of where to cache the files.
+    :param train_url: `str` Where to download the training file from.
+    :param train_label: `str` Where to download the training labels from.
+    :param test_url: `str` Where to download the test file from.
+    :param test_label: `str` Where to download the test labels from.
+
+    :returns: `Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]`
+        The training examples [B, H, W]
+        The training labels   [B]
+        The testing example   [B, H, W]
+        The testing label     [B]
+    """
     cache = get_cache(cache, "MNIST")
     logging.info("Caching data at %s", cache)
     x_train = fetch_data(read_images, train_url, cache)
@@ -180,15 +212,28 @@ def fashion_mnist(
     test_url=FashionMNIST.TEST,
     test_label_url=FashionMNIST.TEST_LABELS,
 ):
-    """Download the drop-in replacement `FashionMNIST` data."""
+    """Download the drop-in replacement `FashionMNIST` data.
+
+    :param cache: `Optional[str]` The location of where to cache the files.
+    :param train_url: `str` Where to download the training file from.
+    :param train_label: `str` Where to download the training labels from.
+    :param test_url: `str` Where to download the test file from.
+    :param test_label: `str` Where to download the test labels from.
+
+    :returns: `Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]`
+        The training examples [B, H, W]
+        The training labels   [B]
+        The testing example   [B, H, W]
+        The testing label     [B]
+    """
     cache = get_cache(cache, "FASHION_MNIST")
     return mnist(cache, train_url, train_label_url, test_url, test_label_url)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Download MNIST dataset")
+    parser = argparse.ArgumentParser(description="Download the MNIST dataset")
     parser.add_argument("--dataset", default="mnist", choices={"mnist", "fashion"}, help="Which dataset to download.")
-    parser.add_argument("--cache", help="Directory to save data in")
+    parser.add_argument("--cache", help="Directory to save data in, defaults to $XDG_DATA_HOME/${dataset-name}")
     args = parser.parse_args()
 
     if args.dataset.lower() == "mnist":

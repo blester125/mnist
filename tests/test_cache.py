@@ -33,7 +33,14 @@ def test_get_cache():
 
 def test_get_cache_xdg_data_set(xdg_data_home):
     gold = xdg_data_home
-    cache = get_cache(None)
+    cache = get_cache(None, name=None)
+    assert cache == gold
+
+
+def test_get_cache_xdg_data_set_with_name(xdg_data_home):
+    name = rstr()
+    gold = os.path.join(xdg_data_home, name)
+    cache = get_cache(None, name=name)
     assert cache == gold
 
 
